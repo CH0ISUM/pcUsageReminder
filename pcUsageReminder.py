@@ -1,5 +1,6 @@
-import sys
-import os
+from sys import exit, argv
+from os import path
+from ctypes import windll
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QSpinBox, QLabel, QMessageBox, QSystemTrayIcon, QHBoxLayout, QDialog, QCheckBox
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import QTimer, Qt
@@ -91,6 +92,21 @@ class ModalDialog(QDialog):
 
         self.setLayout(layout)
 
+class DraggableWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.old_pos = None
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.old_pos = event.globalPos()
+
+    def mouseMoveEvent(self, event):
+        if self.old_pos:
+            delta = event.globalPos() - self.old_pos
+            self.move(self.x() + delta.x(), self.y() + delta.y())
+            self.old_pos = event.globalPos()
+
 def start_timer():
     try:
         total_minutes_x = total_minutes_y = 1
@@ -139,6 +155,18 @@ def toggle_dark_mode(state):
     else:
         app.setStyleSheet("")
 
+def get_scaling_factor():
+    # Get the current DPI (dots per inch) setting
+    hdc = windll.user32.GetDC(0) # Get the device context for the entire screen
+    dpi = windll.gdi32.GetDeviceCaps(hdc, 88)  # 88 refers to DPI_X
+    windll.user32.ReleaseDC(0, hdc) # Release the device context
+
+    # Convert DPI to scaling factor
+    default_dpi = 96  # Default DPI for 100% scaling
+    scaling_factor = dpi / default_dpi
+
+    return scaling_factor
+
 def show_main_window():
     window.showNormal()
     window.activateWindow()
@@ -146,22 +174,22 @@ def show_main_window():
 if __name__ == '__main__':
 
     # Create the main window
-    app = QApplication(sys.argv)
+    app = QApplication(argv) # Create an application object
 
-    window = QWidget()
+    window = DraggableWidget()
     screen_geometry = app.primaryScreen().availableGeometry()
-    scaling_factor = 1.5  # Scaling factor for 150% scaling
+    scaling_factor = get_scaling_factor()
     window_width, window_height = 450,300
     window_x = screen_geometry.width() - window_width
     window_y = screen_geometry.height() - window_height
     window.setGeometry(window_x, window_y, window_width, window_height)
-    window.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+    window.setWindowFlags(Qt.WindowType.FramelessWindowHint) # Remove window title bar
     window.setWindowTitle("PC USAGE TIMER")
 
     #grab path for current directory and icons
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    timer_icon_path = os.path.join(current_dir, "timer_icon.ico")
-    hide_icon_path = os.path.join(current_dir, "hide_icon.ico")
+    current_dir = path.dirname(path.realpath(__file__))
+    timer_icon_path = path.join(current_dir, "timer_icon.ico")
+    hide_icon_path = path.join(current_dir, "hide_icon.ico")
 
     # Set the icons
     icon = QIcon(timer_icon_path)
@@ -169,7 +197,6 @@ if __name__ == '__main__':
     window.setWindowIcon(icon)
 
     # Create ground layout
-    #Ground_layout = QHBoxLayout()
 
     # Create and place the input fields and buttons
     layout = QVBoxLayout()
@@ -254,4 +281,4 @@ if __name__ == '__main__':
     countdown_timer = CountdownTimer(label, pause_button)
 
     window.show()
-    sys.exit(app.exec_())
+    exit(app.exec_())
