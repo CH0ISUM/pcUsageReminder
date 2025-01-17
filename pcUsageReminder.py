@@ -1,4 +1,5 @@
 import sys
+import os
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QSpinBox, QLabel, QMessageBox, QSystemTrayIcon, QHBoxLayout, QDialog, QCheckBox
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import QTimer, Qt
@@ -42,19 +43,19 @@ class CountdownTimer:
             self.start(self.next_minutes, self.minutes)  # Start the next countdown
       
     def pause(self):
-        self.is_paused = True  # Set the paused state to True
-        self.timer.stop()  # Stop the timer
-        self.pause_button.setText("Resume")  # Change button text to "Resume"
-        self.pause_button.clicked.disconnect()  # Disconnect any previous connections
-        self.pause_button.clicked.connect(resume_timer)  # Connect to resume_timer
+        self.is_paused = True  
+        self.timer.stop()  
+        self.pause_button.setText("Resume")  
+        self.pause_button.clicked.disconnect()  
+        self.pause_button.clicked.connect(resume_timer) 
 
     def resume(self):
-        if self.is_paused:  # Only resume if currently paused
-            self.is_paused = False  # Set the paused state to False
-            self.timer.start(1000)  # Resume the timer
-            self.pause_button.setText("Pause")  # Change button text back to "Pause"
-            self.pause_button.clicked.disconnect()  # Disconnect any previous connections
-            self.pause_button.clicked.connect(pause_timer)  # Connect to pause_timer
+        if self.is_paused:  
+            self.is_paused = False  
+            self.timer.start(1000)  
+            self.pause_button.setText("Pause")  
+            self.pause_button.clicked.disconnect() 
+            self.pause_button.clicked.connect(pause_timer) 
 
     def show_notification(self):
         notification_W2R = QSystemTrayIcon(window)  # Create a new notification for Work to Rest
@@ -93,13 +94,13 @@ class ModalDialog(QDialog):
 def start_timer():
     try:
         total_minutes_x = total_minutes_y = 1
-        total_minutes_x = entry_x.value()  # Get value from QSpinBox for X
+        total_minutes_x = entry_x.value()  # Get work time
         if total_minutes_x < 0:
             raise ValueError("ValueError")
-        total_minutes_y = entry_y.value()  # Get value from QSpinBox for Y
+        total_minutes_y = entry_y.value()  # Get rest time
         if total_minutes_y < 0:
             raise ValueError("ValueError")
-        countdown_timer.start(total_minutes_x, total_minutes_y)  # Start countdown for X and set Y as next
+        countdown_timer.start(total_minutes_x, total_minutes_y)  
     except ValueError:
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
@@ -110,10 +111,10 @@ def start_timer():
         msg.exec_()
 
 def pause_timer():
-    countdown_timer.pause()  # Call the pause method
+    countdown_timer.pause() 
 
 def resume_timer():
-    countdown_timer.resume()  # Call the resume method
+    countdown_timer.resume() 
 
 def toggle_dark_mode(state):
     if state == Qt.Checked:
@@ -162,7 +163,6 @@ def show_main_window():
     window.activateWindow()
 
 if __name__ == '__main__':
-    #create_shortcut()  # Create the desktop shortcut
 
     # Create the main window
     app = QApplication(sys.argv)
@@ -177,8 +177,14 @@ if __name__ == '__main__':
     window.setWindowFlags(Qt.WindowType.FramelessWindowHint)
     window.setWindowTitle("PC USAGE TIMER")
 
-    # Set the icon (provide your own icon file path)
-    icon = QIcon("C:\\Users\\deryd\\Desktop\\WORKSPACE\\Personal Projects\\pcUseTimeReminder\\timer_alarm_digital_clock_wake_up_icon_262704.ico")  # Update with your icon path
+    #grab path for current directory and icons
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    timer_icon_path = os.path.join(current_dir, "timer_icon.ico")
+    hide_icon_path = os.path.join(current_dir, "hide_icon.ico")
+
+    # Set the icons
+    icon = QIcon(timer_icon_path)
+    hide_icon = QIcon(hide_icon_path) 
     window.setWindowIcon(icon)
 
     # Create and place the input fields and buttons
