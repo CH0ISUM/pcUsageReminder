@@ -139,25 +139,6 @@ def toggle_dark_mode(state):
     else:
         app.setStyleSheet("")
 
-def set_buttons(layout):
-    # Create a horizontal layout for the buttons
-    button_layout = QHBoxLayout()
-
-    start_button = QPushButton("Start")
-    start_button.setFixedWidth(200)
-    start_button.setFont(QFont('Arial', 12))
-    start_button.clicked.connect(start_timer)
-    button_layout.addWidget(start_button)
-
-    pause_button = QPushButton("Pause")
-    pause_button.setFixedWidth(200)
-    pause_button.setFont(QFont('Arial', 12))
-    pause_button.clicked.connect(pause_timer)  # Initially connect to pause
-    button_layout.addWidget(pause_button)
-
-    # Add the horizontal button layout to the main layout
-    layout.addLayout(button_layout)
-
 def show_main_window():
     window.showNormal()
     window.activateWindow()
@@ -186,6 +167,9 @@ if __name__ == '__main__':
     icon = QIcon(timer_icon_path)
     hide_icon = QIcon(hide_icon_path) 
     window.setWindowIcon(icon)
+
+    # Create ground layout
+    #Ground_layout = QHBoxLayout()
 
     # Create and place the input fields and buttons
     layout = QVBoxLayout()
@@ -219,10 +203,33 @@ if __name__ == '__main__':
     entry_y.setSuffix(" mins")  # Append mins to the value
     entry_y_layout.addWidget(entry_y)
     time_input_layout.addLayout(entry_y_layout)
-
+    
+    #Add hide button in the same layout as the input labels
+    hide_button = QPushButton()
+    hide_button.setIcon(hide_icon)
+    hide_button.setFixedWidth(40)
+    hide_button.setFixedHeight(40)
+    hide_button.clicked.connect(window.showMinimized)
+    time_input_layout.addWidget(hide_button)
+    
     # Add the horizontal layout to the main layout
     layout.addLayout(time_input_layout)
     
+    # Create a label to display the timer
+    label = QLabel()
+    label.setFont(QFont('Arial', 24))  # Correctly set the font
+    label.setAlignment(Qt.AlignCenter)  # Center align the text
+    layout.addWidget(label)
+
+    # Create a toggle switch for dark mode
+    dark_mode_toggle = QCheckBox("Dark Mode")
+    dark_mode_toggle.setFont(QFont('Arial', 12))
+    dark_mode_toggle.stateChanged.connect(toggle_dark_mode)
+    dark_mode_toggle.setCheckState(Qt.Checked)  # Set dark mode as default
+    layout.addWidget(dark_mode_toggle)
+
+    toggle_dark_mode(Qt.Checked)  
+
     # Create a horizontal layout for the buttons
     button_layout = QHBoxLayout()
 
@@ -240,21 +247,6 @@ if __name__ == '__main__':
 
     # Add the horizontal button layout to the main layout
     layout.addLayout(button_layout)
-    
-    # Create a label to display the timer
-    label = QLabel()
-    label.setFont(QFont('Arial', 24))  # Correctly set the font
-    label.setAlignment(Qt.AlignCenter)  # Center align the text
-    layout.addWidget(label)
-
-    # Create a toggle switch for dark mode
-    dark_mode_toggle = QCheckBox("Dark Mode")
-    dark_mode_toggle.setFont(QFont('Arial', 12))
-    dark_mode_toggle.stateChanged.connect(toggle_dark_mode)
-    dark_mode_toggle.setCheckState(Qt.Checked)  # Set dark mode as default
-    layout.addWidget(dark_mode_toggle)
-
-    toggle_dark_mode(Qt.Checked)  
 
     window.setLayout(layout)
     
