@@ -280,5 +280,8 @@ if __name__ == '__main__':
     # Initialize the countdown timer
     countdown_timer = CountdownTimer(label, pause_button)
 
+    # Start the timer automatically with default values
+    countdown_timer.start(entry_x.value(), entry_y.value())
+
     window.show()
     exit(app.exec_())
