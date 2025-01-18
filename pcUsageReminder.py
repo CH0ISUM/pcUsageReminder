@@ -1,6 +1,7 @@
 from sys import exit, argv
 from os import path
-from ctypes import windll
+#from ctypes import windll
+from winsound import MessageBeep
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QSpinBox, QLabel, QMessageBox, QSystemTrayIcon, QHBoxLayout, QDialog, QCheckBox
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import QTimer, Qt
@@ -64,8 +65,9 @@ class CountdownTimer:
         notification_W2R.show()
 
         if self.work_flag:
-            notification_W2R.showMessage("PC Usage Reminder", "Time to take rest!", QSystemTrayIcon.Information, 2000)
+            notification_W2R.showMessage("PC Usage Reminder", "Time to take a rest!", QSystemTrayIcon.Information, 2000) #appear for 2 seconds
         else:
+            MessageBeep()
             notification_R2W = ModalDialog()  # Create a new notification for Rest to Work
             notification_R2W.exec_()
 
@@ -73,7 +75,12 @@ class ModalDialog(QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PC Usage Reminder")
-        self.setGeometry(100, 100, 300, 100)
+        screen_geometry = app.primaryScreen().availableGeometry()
+        window_x = screen_geometry.width()
+        window_y = screen_geometry.height()
+        dialog_window_x = 600
+        dialog_window_y = 200
+        self.setGeometry((window_x - dialog_window_x)//2, (window_y - dialog_window_y)//2, dialog_window_x, dialog_window_y)
         self.setWindowIcon(icon)
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)  # Ensure the dialog stays on top
 
@@ -154,7 +161,7 @@ def toggle_dark_mode(state):
         """)
     else:
         app.setStyleSheet("")
-
+'''
 def get_scaling_factor():
     # Get the current DPI (dots per inch) setting
     hdc = windll.user32.GetDC(0) # Get the device context for the entire screen
@@ -166,7 +173,7 @@ def get_scaling_factor():
     scaling_factor = dpi / default_dpi
 
     return scaling_factor
-
+'''
 def show_main_window():
     window.showNormal()
     window.activateWindow()
@@ -178,7 +185,7 @@ if __name__ == '__main__':
 
     window = DraggableWidget()
     screen_geometry = app.primaryScreen().availableGeometry()
-    scaling_factor = get_scaling_factor()
+    #scaling_factor = get_scaling_factor()
     window_width, window_height = 450,300
     window_x = screen_geometry.width() - window_width
     window_y = screen_geometry.height() - window_height
@@ -187,7 +194,7 @@ if __name__ == '__main__':
     window.setWindowTitle("PC USAGE TIMER")
 
     #grab path for current directory and icons
-    current_dir = path.dirname(path.realpath(__file__))
+    current_dir = path.dirname(path.abspath(__file__))
     timer_icon_path = path.join(current_dir, "timer_icon.ico")
     hide_icon_path = path.join(current_dir, "hide_icon.ico")
 
