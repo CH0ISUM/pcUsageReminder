@@ -1,6 +1,5 @@
 from sys import exit, argv
 from os import path
-#from ctypes import windll
 from winsound import MessageBeep
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QSpinBox, QLabel, QMessageBox, QSystemTrayIcon, QHBoxLayout, QDialog, QCheckBox
 from PyQt5.QtGui import QIcon, QFont
@@ -16,6 +15,9 @@ class CountdownTimer:
         self.is_paused = False  # Track if the timer is paused
         self.pause_button = pause_button  # Reference to the pause/resume button
         self.work_flag = True  # Initialize work_flag to True
+        self.tray_icon = QSystemTrayIcon(window)  # Create a single tray icon
+        self.tray_icon.setIcon(icon)
+        self.tray_icon.show()
 
     def start(self, minutes, next_minutes=None):
         self.minutes = minutes  # Store the countdown minutes
@@ -60,12 +62,8 @@ class CountdownTimer:
             self.pause_button.clicked.connect(pause_timer) 
 
     def show_notification(self):
-        notification_W2R = QSystemTrayIcon(window)  # Create a new notification for Work to Rest
-        notification_W2R.setIcon(icon)
-        notification_W2R.show()
-
         if self.work_flag:
-            notification_W2R.showMessage("PC Usage Reminder", "Time to take a rest!", QSystemTrayIcon.Information, 2000) #appear for 2 seconds
+            self.tray_icon.showMessage("PC Usage Reminder", "Time to take a rest!", QSystemTrayIcon.Information, 2000) #appear for 2 seconds
         else:
             MessageBeep()
             notification_R2W = ModalDialog()  # Create a new notification for Rest to Work
@@ -161,19 +159,7 @@ def toggle_dark_mode(state):
         """)
     else:
         app.setStyleSheet("")
-'''
-def get_scaling_factor():
-    # Get the current DPI (dots per inch) setting
-    hdc = windll.user32.GetDC(0) # Get the device context for the entire screen
-    dpi = windll.gdi32.GetDeviceCaps(hdc, 88)  # 88 refers to DPI_X
-    windll.user32.ReleaseDC(0, hdc) # Release the device context
 
-    # Convert DPI to scaling factor
-    default_dpi = 96  # Default DPI for 100% scaling
-    scaling_factor = dpi / default_dpi
-
-    return scaling_factor
-'''
 def show_main_window():
     window.showNormal()
     window.activateWindow()
@@ -185,7 +171,6 @@ if __name__ == '__main__':
 
     window = DraggableWidget()
     screen_geometry = app.primaryScreen().availableGeometry()
-    #scaling_factor = get_scaling_factor()
     window_width, window_height = 450,300
     window_x = screen_geometry.width() - window_width
     window_y = screen_geometry.height() - window_height
